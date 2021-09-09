@@ -55,7 +55,6 @@ for subdir, dirs, files in os.walk(rootdir):
             df = pd.read_csv(subdir + '/' + file, delimiter="\t", header=None)
             for index, row in df.iterrows():
                 cpf_cnpj = df.iloc[index][1]
-                #nomeInvestigado = df.iloc[index][2]
 
                 (df.loc[index, 1], df.loc[index, 2]) = getChaveNome(cpf_cnpj)
 
@@ -67,7 +66,6 @@ for subdir, dirs, files in os.walk(rootdir):
             df = pd.read_csv(subdir + '/' + file, delimiter="\t", header=None)
             for index, row in df.iterrows():
                 cpf_cnpj = df.iloc[index][7]
-                #nomeInvestigado = df.iloc[index][8]
                 
                 (df.loc[index, 7], df.loc[index, 8]) = getChaveNome(cpf_cnpj)
 
@@ -91,16 +89,7 @@ for subdir, dirs, files in os.walk(rootdir):
             for index, row in df.iterrows():
                 if not np.isnan(df.iloc[index][9]):
                     cpf_cnpj = df.iloc[index][9]
-                    #nomeInvestigado = df.iloc[index][10]
                     (df.loc[index, 9], df.loc[index, 10]) = getChaveNome(cpf_cnpj)
-
-                    #df.loc[index, 4] = pd.to_numeric(df.loc[index, 4], errors='coerce').astype('Int64')                    
-
-                    #if not pd.isna(df.loc[index, 4]) : df.loc[index, 4] = int(df.loc[index, 4])
-                    #if not pd.isna(df.loc[index, 5]) : df.loc[index, 5] = int(df.loc[index, 5])
-                    #if not pd.isna(df.loc[index, 6]) : df.loc[index, 6] = int(df.loc[index, 6])
-                    #if not pd.isna(df.loc[index, 7]) : df.loc[index, 7] = int(df.loc[index, 7])
-                    #if not pd.isna(df.loc[index, 8]) : df.loc[index, 8] = int(df.loc[index, 8])
 
                     print(type(df.loc[index, 4]))
 
