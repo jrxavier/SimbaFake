@@ -12,7 +12,7 @@ fake = Faker('pt_BR')
 #Rotina que percorre todos os diretórios existentes na raiz do programa
 rootdir = '.'
 alterados = {}
-dadosPessoas = {}
+#dadosPessoas = {}
 caracteres = '.-/'
 
 def limpaCpfCnpj(valor):
@@ -53,8 +53,6 @@ def getDadosPorCPFCNPJ(cpf_cnpj, nomeOriginal):
         alterados[cpf_cnpj] = { 'cpfFake': cpfFake, 'nomeFake': nomeFake, 
             'cnpjFake': cnpjFake, 'nomeEmpresaFake': nomeEmpresaFake, 'nomeOriginal': nomeOriginal}
         
-        dadosPessoas[nomeOriginal] = { 'cpfCnpj': cpf_cnpj}
-        
         if cpf_cnpj <= 99999999999:
             return (cpfFake, nomeFake)               
         else:
@@ -66,14 +64,6 @@ def getDadosPorCPFCNPJ(cpf_cnpj, nomeOriginal):
             return (dadosFake['cpfFake'], dadosFake['nomeFake'])        
         else:
             return (dadosFake['cnpjFake'], dadosFake['nomeEmpresaFake'])
-
-
-def getChavePOrNome(pNome):
-    valor = [value for key, value in dadosPessoas.items() if pNome in key]
-    
-    if valor:
-        return valor[0]['cpfCnpj']
-
   
 
 for subdir, dirs, files in os.walk(rootdir):
@@ -129,19 +119,39 @@ for subdir, dirs, files in os.walk(rootdir):
 
             df.to_csv(subdir + '/' +  "origem_destino_alt.txt", sep='\t', index=None, header=None)
 
-
        #Busca de dados de TITULARES
-        dados_ccs = re.search("dados_ccs", file.lower())
-        if dados_ccs:
-            df = pd.read_csv(subdir + '/' + file, delimiter="\t", usecols= ['Banco','Agencia', 'Conta','Tipo de Conta', 'Nome', 'CPF/CNPJ', 'Tipo de Relacao', 'Data Inicial', 'Data Final','Investigado'])
+        dadosCCS = re.search("cvm_ccs", file.lower())
+        if dadosCCS:
+            DTYPESCCS = {
+                 7: 'str',
+                 10: 'str',
+                 11: 'str',
+                 12: 'str',
+                 14: 'str',
+                 15: 'str',
+                 19: 'str',
+                 20: 'str'     
+            }
 
+            df = pd.read_csv(subdir + '/' + file, delimiter="\t", header=None, dtype=DTYPESCCS)
             for index, row in df.iterrows():
-                cpf_cnpj = df.iloc[index][5]
+                cpf_cnpj = df.iloc[index][3]
                 nomeOriginal = df.iloc[index][4]
-                
-                (df.loc[index][5], df.loc[index][4]) = getDadosPorCPFCNPJ(cpf_cnpj, nomeOriginal)
+                (chaveFake, nomeFake) = getDadosPorCPFCNPJ(cpf_cnpj, nomeOriginal)
 
-            df.to_csv(subdir + '/' +  "dados_ccs_alt.txt", sep='\t', index=None)
+                df.loc[index, 3] = chaveFake
+                df.loc[index, 4] = nomeFake
+                df.loc[index, 13] = nomeFake
+
+                if not np.isnan(df.iloc[index][17]):
+                    cpf_cnpj_17 = df.iloc[index][17]
+                    nomeOriginal_18 = df.iloc[index][18]
+                    (chaveFake17 , nomeFake18) = getDadosPorCPFCNPJ(cpf_cnpj_17, nomeOriginal_18)
+
+                    df.loc[index, 17] = chaveFake17
+                    df.loc[index, 18] = nomeFake18
+
+            df.to_csv(subdir + '/' +  "cvm_ccs_fake.txt", sep='\t', index=None, header=None)
 
  
 
