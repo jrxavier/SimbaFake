@@ -123,17 +123,24 @@ for subdir, dirs, files in os.walk(rootdir):
         dadosCCS = re.search("cvm_ccs", file.lower())
         if dadosCCS:
             DTYPESCCS = {
-                 7: 'str',
-                 10: 'str',
-                 11: 'str',
-                 12: 'str',
-                 14: 'str',
-                 15: 'str',
-                 19: 'str',
-                 20: 'str'     
+                1: 'str', 2: 'str', 3: 'str',
+                4: 'str', 5: 'str', 6: 'str',
+                7: 'str', 8: 'str', 9: 'str',
+                10: 'str', 11: 'str', 12: 'str',
+                13: 'str', 14: 'str', 15: 'str',
+                16: 'str', 17: 'str', 18: 'str',
+                19: 'str', 20: 'str', 21: 'str',
+                22: 'str'
             }
 
-            df = pd.read_csv(subdir + '/' + file, delimiter="\t", header=None, dtype=DTYPESCCS)
+            df = pd.read_csv(subdir + '/' + file, delimiter="\t", header=None, dtype="object")
+
+            #Criacao de um DF de strings vazias
+            linhas = len(df)
+            colunas = 2
+            cnpjBancoCentral = '00038166000105'
+            novoDf = pd.DataFrame(np.empty((linhas, colunas), dtype = 'str'))
+
             for index, row in df.iterrows():
                 cpf_cnpj = df.iloc[index][3]
                 nomeOriginal = df.iloc[index][4]
@@ -143,13 +150,18 @@ for subdir, dirs, files in os.walk(rootdir):
                 df.loc[index, 4] = nomeFake
                 df.loc[index, 13] = nomeFake
 
-                if not np.isnan(df.iloc[index][17]):
+                if not df.iloc[index][17]:
                     cpf_cnpj_17 = df.iloc[index][17]
                     nomeOriginal_18 = df.iloc[index][18]
                     (chaveFake17 , nomeFake18) = getDadosPorCPFCNPJ(cpf_cnpj_17, nomeOriginal_18)
 
                     df.loc[index, 17] = chaveFake17
                     df.loc[index, 18] = nomeFake18
+                
+                novoDf.loc[index, 0] = '00'
+                novoDf.loc[index, 1] = cnpjBancoCentral
+
+            df = pd.concat([df, novoDf], axis=1)
 
             df.to_csv(subdir + '/' +  "cvm_ccs_fake.txt", sep='\t', index=None, header=None)
 
